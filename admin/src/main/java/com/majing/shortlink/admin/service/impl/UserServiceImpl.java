@@ -59,6 +59,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                     if(inserted<1){
                         throw new ClientException(USER_SAVE_ERROR);
                     }
+                    userRegisterCachePenetrationBloomFilter.add(LOCK_USER_REGISTER_KEY + userRegisterRespDto.getUsername());
                     return;
                 }catch (DuplicateKeyException exception){
                     throw new ClientException(USER_EXIST.message(), exception, USER_EXIST);
