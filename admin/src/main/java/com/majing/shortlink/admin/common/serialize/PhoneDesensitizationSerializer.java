@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * @author majing
  * @date 2024-04-09 14:59
- * @Description 手机脱敏处理
+ * @Description 手机序列化脱敏处理
  */
 public class PhoneDesensitizationSerializer extends JsonSerializer<String> {
     @Override

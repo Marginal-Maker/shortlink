@@ -1,16 +1,14 @@
-package com.majing.shortlink.admin.dto.resp;
+package com.majing.shortlink.admin.dto.req;
 
 import lombok.Data;
 
 /**
  * @author majing
  * @date 2024-04-08 18:37
- * @Description 用户响应参数实体（脱敏）
+ * @Description 用户注册请求参数实体
  */
 @Data
-public class UserRespDto {
-    // ID
-    private Long id;
+public class UserRegisterRespDto {
     // 用户名
     private String username;
     // 密码
