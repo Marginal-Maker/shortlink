@@ -3,8 +3,11 @@ package com.majing.shortlink.admin.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.majing.shortlink.admin.common.convention.result.Result;
 import com.majing.shortlink.admin.common.convention.result.Results;
-import com.majing.shortlink.admin.dto.req.UserRegisterRespDto;
+import com.majing.shortlink.admin.dto.req.UserLoginReqDto;
+import com.majing.shortlink.admin.dto.req.UserRegisterReqDto;
+import com.majing.shortlink.admin.dto.req.UserUpdateReqDto;
 import com.majing.shortlink.admin.dto.resp.RealUserRespDto;
+import com.majing.shortlink.admin.dto.resp.UserLoginRespDto;
 import com.majing.shortlink.admin.dto.resp.UserRespDto;
 import com.majing.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +54,34 @@ public class UserController {
      * @created at 2024/4/9 17:09
     */
     @PostMapping("/register")
-    public Result<Void> register(@RequestBody UserRegisterRespDto userRegisterRespDto){
+    public Result<Void> register(@RequestBody UserRegisterReqDto userRegisterRespDto){
         userService.register(userRegisterRespDto);
         return Results.success();
+    }
+    /**
+     * 修改用户信息
+     * @created at 2024/4/10 15:58
+    */
+    @PutMapping("")
+    public Result<Void> update(@RequestBody UserUpdateReqDto userUpdateReqDto){
+        userService.update(userUpdateReqDto);
+        return Results.success();
+    }
+    /**
+     * 用户登录
+     * @created at 2024/4/10 15:58
+    */
+    @PostMapping("/login")
+    public Result<UserLoginRespDto> login(@RequestBody UserLoginReqDto userLoginRespDto){
+        return Results.success(userService.login(userLoginRespDto));
+    }
+    /**
+     * 验证用户登录，目前该方法存疑
+     * @return com.majing.shortlink.admin.common.convention.result.Result<java.lang.Boolean>
+     * @created at 2024/4/10 15:59
+    */
+    @GetMapping("/check-login")
+    public Result<Boolean> checkLogin(@RequestParam("username") String username, @RequestParam("token") String token){
+        return Results.success(userService.checkLogin(username, token));
     }
 }

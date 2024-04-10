@@ -2,7 +2,10 @@ package com.majing.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.majing.shortlink.admin.dao.entity.UserDO;
-import com.majing.shortlink.admin.dto.req.UserRegisterRespDto;
+import com.majing.shortlink.admin.dto.req.UserLoginReqDto;
+import com.majing.shortlink.admin.dto.req.UserRegisterReqDto;
+import com.majing.shortlink.admin.dto.req.UserUpdateReqDto;
+import com.majing.shortlink.admin.dto.resp.UserLoginRespDto;
 import com.majing.shortlink.admin.dto.resp.UserRespDto;
 
 /**
@@ -27,9 +30,31 @@ public interface UserService extends IService<UserDO>{
     Boolean hasUsername(String username);
     /**
      * 用户注册功能
-     * @param userRegisterRespDto
+     * @param userRegisterReqDto
      * @return void
      * @created at 2024/4/9 16:25
     */
-    void register(UserRegisterRespDto userRegisterRespDto);
+    void register(UserRegisterReqDto userRegisterReqDto);
+    /**
+     * 更新用户信息
+     * @param userUpdateReqDto
+     * @return void
+     * @created at 2024/4/10 13:48
+    */
+    void update(UserUpdateReqDto userUpdateReqDto);
+    /**
+     * 用户登录
+     *
+     * @param userLoginReqDto
+     * @return java.lang.String
+     * @created at 2024/4/10 14:50
+     */
+    UserLoginRespDto login(UserLoginReqDto userLoginReqDto);
+    /**
+     * 验证用户是否已经登录
+     * @param token
+     * @return java.lang.Boolean
+     * @created at 2024/4/10 15:21
+    */
+    Boolean checkLogin(String username, String token);
 }

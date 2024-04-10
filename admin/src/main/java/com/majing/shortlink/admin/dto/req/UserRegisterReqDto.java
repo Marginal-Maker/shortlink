@@ -8,7 +8,7 @@ import lombok.Data;
  * @Description 用户注册请求参数实体
  */
 @Data
-public class UserRegisterRespDto {
+public class UserRegisterReqDto {
     // 用户名
     private String username;
     // 密码
