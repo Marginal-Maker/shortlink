@@ -1,8 +1,6 @@
 package com.majing.shortlink.admin.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.util.Date;
@@ -16,6 +14,7 @@ import java.util.Date;
 @TableName("t_user")
 public class UserDO {
     // ID
+    @TableId(type = IdType.AUTO)
     private Long id;
     // 用户名
     private String username;
@@ -37,6 +36,6 @@ public class UserDO {
     private Date updateTime;
     // 删除标识 0：未删除 1：已删除
     @TableField(fill = FieldFill.INSERT)
-    private Boolean delFlag;
+    private Integer delFlag;
 
 }
