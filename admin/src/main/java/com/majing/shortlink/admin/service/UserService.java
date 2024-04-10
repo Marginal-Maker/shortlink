@@ -57,4 +57,11 @@ public interface UserService extends IService<UserDO>{
      * @created at 2024/4/10 15:21
     */
     Boolean checkLogin(String username, String token);
+    /**
+     * 用户退登
+     * @param username
+     * @return void
+     * @created at 2024/4/10 16:09
+    */
+    void logout(String username, String token);
 }
