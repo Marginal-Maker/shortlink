@@ -1,16 +1,22 @@
 package com.majing.shortlink.admin.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 /**
  * @author majing
  * @date 2024-04-15 13:59
- * @Description
+ * @Description 分组实体类
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("t_group")
 public class GroupDO {
     @TableId(type = IdType.AUTO)
@@ -23,5 +29,6 @@ public class GroupDO {
     private Date createTime; // 创建时间
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateTime; // 修改时间
+    @TableField(fill = FieldFill.INSERT)
     private Integer delFlag; // 删除标识 0：未删除 1：已删除
 }
