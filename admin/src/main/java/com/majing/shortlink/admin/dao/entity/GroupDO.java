@@ -1,12 +1,13 @@
 package com.majing.shortlink.admin.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.majing.shortlink.admin.common.database.BaseDO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 /**
  * @author majing
@@ -18,17 +19,11 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("t_group")
-public class GroupDO {
+public class GroupDO extends BaseDO {
     @TableId(type = IdType.AUTO)
     private Long id; // ID
     private String gid; // 分组标识
     private String name; // 分组名称
     private String username; // 创建分组用户名
     private Integer sortOrder; // 分组排序
-    @TableField(fill = FieldFill.INSERT)
-    private Date createTime; // 创建时间
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date updateTime; // 修改时间
-    @TableField(fill = FieldFill.INSERT)
-    private Integer delFlag; // 删除标识 0：未删除 1：已删除
 }
