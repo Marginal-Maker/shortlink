@@ -3,12 +3,12 @@ package com.majing.shortlink.admin.controller;
 import com.majing.shortlink.admin.common.convention.result.Result;
 import com.majing.shortlink.admin.common.convention.result.Results;
 import com.majing.shortlink.admin.dto.req.GroupSaveReqDto;
+import com.majing.shortlink.admin.dto.resp.GroupRespDto;
 import com.majing.shortlink.admin.service.GroupService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author majing
@@ -24,6 +24,10 @@ public class GroupController {
     public Result<Void> save(@RequestBody GroupSaveReqDto groupSaveReqDto){
         groupService.save(groupSaveReqDto.getName());
         return Results.success();
+    }
+    @GetMapping("")
+    public Result<List<GroupRespDto>> listGroup(){
+        return Results.success(groupService.listGroup());
     }
 
 }

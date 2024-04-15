@@ -2,6 +2,9 @@ package com.majing.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.majing.shortlink.admin.dao.entity.GroupDO;
+import com.majing.shortlink.admin.dto.resp.GroupRespDto;
+
+import java.util.List;
 
 /**
  * @author majing
@@ -9,5 +12,18 @@ import com.majing.shortlink.admin.dao.entity.GroupDO;
  * @Description 实现分组相关业务
  */
 public interface GroupService extends IService<GroupDO> {
+    /**
+     * 新增短连接分组
+     * @param groupName
+     * @return void
+     * @created at 2024/4/15 16:04
+    */
     void save(String groupName);
+    /**
+     * 查询短连接分组
+     * @param
+     * @return java.util.List<com.majing.shortlink.admin.dto.resp.GroupRespDto>
+     * @created at 2024/4/15 16:07
+    */
+    List<GroupRespDto> listGroup();
 }
