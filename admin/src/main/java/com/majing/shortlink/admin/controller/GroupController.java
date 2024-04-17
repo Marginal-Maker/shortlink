@@ -2,7 +2,10 @@ package com.majing.shortlink.admin.controller;
 
 import com.majing.shortlink.admin.common.convention.result.Result;
 import com.majing.shortlink.admin.common.convention.result.Results;
+import com.majing.shortlink.admin.dto.req.GroupDeleteDto;
 import com.majing.shortlink.admin.dto.req.GroupSaveReqDto;
+import com.majing.shortlink.admin.dto.req.GroupSortReqDto;
+import com.majing.shortlink.admin.dto.req.GroupUpdateReqDto;
 import com.majing.shortlink.admin.dto.resp.GroupRespDto;
 import com.majing.shortlink.admin.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,21 @@ public class GroupController {
     @GetMapping("")
     public Result<List<GroupRespDto>> listGroup(){
         return Results.success(groupService.listGroup());
+    }
+    @PutMapping("")
+    public Result<Void> update(@RequestBody GroupUpdateReqDto groupUpdateReqDto){
+        groupService.update(groupUpdateReqDto);
+        return Results.success();
+    }
+    @DeleteMapping("")
+    public Result<Void> delete(@RequestBody GroupDeleteDto groupDeleteDto){
+        groupService.delete(groupDeleteDto.getGid());
+        return Results.success();
+    }
+    @PostMapping("/sort")
+    public  Result<Void> sort(@RequestBody List<GroupSortReqDto> groupSortReqDtoList){
+        groupService.sort(groupSortReqDtoList);
+        return Results.success();
     }
 
 }

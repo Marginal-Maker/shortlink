@@ -2,6 +2,8 @@ package com.majing.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.majing.shortlink.admin.dao.entity.GroupDO;
+import com.majing.shortlink.admin.dto.req.GroupSortReqDto;
+import com.majing.shortlink.admin.dto.req.GroupUpdateReqDto;
 import com.majing.shortlink.admin.dto.resp.GroupRespDto;
 
 import java.util.List;
@@ -26,4 +28,25 @@ public interface GroupService extends IService<GroupDO> {
      * @created at 2024/4/15 16:07
     */
     List<GroupRespDto> listGroup();
+    /**
+     * 更新分组信息
+     * @param groupUpdateReqDto
+     * @return void
+     * @created at 2024/4/15 20:04
+    */
+    void update(GroupUpdateReqDto groupUpdateReqDto);
+    /**
+     * 删除
+     * @param gid
+     * @return void
+     * @created at 2024/4/17 12:55
+    */
+    void delete(String gid);
+    /**
+     * 排序
+     * @param groupSortReqDto
+     * @return void
+     * @created at 2024/4/17 12:56
+    */
+    void sort(List<GroupSortReqDto> groupSortReqDtoList);
 }
