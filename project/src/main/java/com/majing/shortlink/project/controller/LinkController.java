@@ -1,15 +1,15 @@
 package com.majing.shortlink.project.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.majing.shortlink.project.commom.convention.result.Result;
 import com.majing.shortlink.project.commom.convention.result.Results;
 import com.majing.shortlink.project.dto.req.LinkCreateReqDto;
+import com.majing.shortlink.project.dto.req.LinkedPageReqDto;
 import com.majing.shortlink.project.dto.resp.LinkCreateRespDto;
+import com.majing.shortlink.project.dto.resp.LinkedPageRespDto;
 import com.majing.shortlink.project.service.LinkService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author majing
@@ -26,6 +26,10 @@ public class LinkController {
         linkService.createShortLink(linkCreateReqDto);
         return Results.success(null);
 
+    }
+    @GetMapping("/page")
+    public Result<IPage<LinkedPageRespDto>> pageLink(LinkedPageReqDto linkedPageReqDto){
+        return Results.success(linkService.pageLink(linkedPageReqDto));
     }
 
 }

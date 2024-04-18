@@ -1,9 +1,12 @@
 package com.majing.shortlink.project.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.majing.shortlink.project.dao.entity.LinkDO;
 import com.majing.shortlink.project.dto.req.LinkCreateReqDto;
+import com.majing.shortlink.project.dto.req.LinkedPageReqDto;
 import com.majing.shortlink.project.dto.resp.LinkCreateRespDto;
+import com.majing.shortlink.project.dto.resp.LinkedPageRespDto;
 
 /**
  * @author majing
@@ -18,4 +21,12 @@ public interface LinkService extends IService<LinkDO> {
      * @created at 2024/4/17 15:08
     */
     LinkCreateRespDto createShortLink(LinkCreateReqDto linkCreateReqDto);
+
+    /**
+     * 分页
+     * @param linkedPageReqDto
+     * @return com.baomidou.mybatisplus.core.metadata.IPage<com.majing.shortlink.project.dto.resp.LinkedPageRespDto>
+     * @created at 2024/4/18 15:09
+    */
+    IPage<LinkedPageRespDto> pageLink(LinkedPageReqDto linkedPageReqDto);
 }
