@@ -1,5 +1,7 @@
 package com.majing.shortlink.admin.dto.resp;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.majing.shortlink.admin.common.serialize.PhoneDesensitizationSerializer;
 import lombok.Data;
 
 /**
@@ -18,6 +20,7 @@ public class UserRespDto {
     // 真实姓名
     private String realName;
     // 手机号
+    @JsonSerialize(using = PhoneDesensitizationSerializer.class)
     private String phone;
     // 邮箱
     private String mail;

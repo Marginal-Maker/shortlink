@@ -44,7 +44,7 @@ public interface GroupService extends IService<GroupDO> {
     void delete(String gid);
     /**
      * 排序
-     * @param groupSortReqDto
+     * @param groupSortReqDtoList
      * @return void
      * @created at 2024/4/17 12:56
     */
