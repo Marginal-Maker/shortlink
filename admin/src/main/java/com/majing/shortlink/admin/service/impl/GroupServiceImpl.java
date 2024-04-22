@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.majing.shortlink.admin.common.biz.user.UserContext;
+import com.majing.shortlink.admin.common.convention.result.Result;
 import com.majing.shortlink.admin.dao.entity.GroupDO;
 import com.majing.shortlink.admin.dao.mapper.GroupMapper;
 import com.majing.shortlink.admin.dto.req.GroupSortReqDto;
 import com.majing.shortlink.admin.dto.req.GroupUpdateReqDto;
 import com.majing.shortlink.admin.dto.resp.GroupRespDto;
+import com.majing.shortlink.admin.remote.dto.LinkRemoteService;
+import com.majing.shortlink.admin.remote.dto.resp.LinkCountRespDto;
 import com.majing.shortlink.admin.service.GroupService;
 import com.majing.shortlink.admin.util.RandomStringGenerator;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author majing
@@ -27,6 +31,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService{
+
+    LinkRemoteService linkRemoteService = new LinkRemoteService() {
+    };
 
     @Override
     public void save(String groupName) {
@@ -50,7 +57,20 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .eq(GroupDO::getUsername, UserContext.getUsername())
                 .orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
         List<GroupDO> groupDOS = baseMapper.selectList(queryWrapper);
-        return BeanUtil.copyToList(groupDOS, GroupRespDto.class);
+        Result<List<LinkCountRespDto>> listResult = linkRemoteService.listGroupLinkCount(groupDOS.stream().map(GroupDO::getGid).toList());
+        List<GroupRespDto> groupRespDtoList = BeanUtil.copyToList(groupDOS, GroupRespDto.class);
+        groupRespDtoList.forEach(each -> {
+            Optional<LinkCountRespDto> first = listResult.getData().stream()
+                    .filter(item-> item.getGid().equals(each.getGid()))
+                    .findFirst();
+            first.ifPresentOrElse(
+                    item -> each.setLinkCount(first.get().getLinkCount()),
+                    () -> {
+                        each.setLinkCount(0); // 这里设置为默认值，你可以根据需求修改
+                    }
+            );
+        });
+        return groupRespDtoList;
     }
 
     @Override

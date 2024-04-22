@@ -5,11 +5,14 @@ import com.majing.shortlink.project.commom.convention.result.Result;
 import com.majing.shortlink.project.commom.convention.result.Results;
 import com.majing.shortlink.project.dto.req.LinkCreateReqDto;
 import com.majing.shortlink.project.dto.req.LinkedPageReqDto;
+import com.majing.shortlink.project.dto.resp.LinkCountRespDto;
 import com.majing.shortlink.project.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.project.dto.resp.LinkedPageRespDto;
 import com.majing.shortlink.project.service.LinkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author majing
@@ -29,6 +32,10 @@ public class LinkController {
     @GetMapping("/page")
     public Result<IPage<LinkedPageRespDto>> pageLink(LinkedPageReqDto linkedPageReqDto){
         return Results.success(linkService.pageLink(linkedPageReqDto));
+    }
+    @GetMapping("/count")
+    public Result<List<LinkCountRespDto>> listGroupLinkCount(@RequestParam("gidList") List<String> gidList){
+        return Results.success(linkService.listGroupLinkCount(gidList));
     }
 
 }

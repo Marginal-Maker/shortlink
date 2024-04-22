@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.text.StrBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -12,6 +13,7 @@ import com.majing.shortlink.project.dao.entity.LinkDO;
 import com.majing.shortlink.project.dao.mapper.LinkMapper;
 import com.majing.shortlink.project.dto.req.LinkCreateReqDto;
 import com.majing.shortlink.project.dto.req.LinkedPageReqDto;
+import com.majing.shortlink.project.dto.resp.LinkCountRespDto;
 import com.majing.shortlink.project.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.project.dto.resp.LinkedPageRespDto;
 import com.majing.shortlink.project.service.LinkService;
@@ -21,6 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author majing
@@ -73,6 +78,18 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
                 .orderByDesc(LinkDO::getCreateTime);
         IPage<LinkDO> linkDOIPage = baseMapper.selectPage(linkedPageReqDto, queryWrapper);
         return linkDOIPage.convert(each -> BeanUtil.toBean(each, LinkedPageRespDto.class));
+    }
+
+    @Override
+    public List<LinkCountRespDto> listGroupLinkCount(List<String> gidList) {
+        QueryWrapper<LinkDO> queryWrapper = Wrappers.query(new LinkDO())
+                .select("gid as gid, count(*) as linkCount")
+                .in("gid", gidList)
+                .eq("enable_status",1)
+                .eq("del_flag",0)
+                .groupBy("gid");
+        List<Map<String, Object>> linkCountList = baseMapper.selectMaps(queryWrapper);
+        return BeanUtil.copyToList(linkCountList, LinkCountRespDto.class);
     }
 
     private String generateShortLink(LinkCreateReqDto linkCreateReqDto){

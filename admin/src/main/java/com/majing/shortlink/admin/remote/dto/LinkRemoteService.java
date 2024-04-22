@@ -7,10 +7,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.majing.shortlink.admin.common.convention.result.Result;
 import com.majing.shortlink.admin.remote.dto.req.LinkCreateReqDto;
 import com.majing.shortlink.admin.remote.dto.req.LinkedPageReqDto;
+import com.majing.shortlink.admin.remote.dto.resp.LinkCountRespDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkedPageRespDto;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,6 +33,13 @@ public interface LinkRemoteService {
     default Result<LinkCreateRespDto> createShortLink(LinkCreateReqDto linkCreateReqDto){
         String resultBodyStr = HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/create", JSON.toJSONString(linkCreateReqDto));
         return JSON.parseObject(resultBodyStr, new TypeReference<Result<LinkCreateRespDto>>() {
+        });
+    }
+    default Result<List<LinkCountRespDto>> listGroupLinkCount(List<String> gidList){
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("gidList", gidList);
+        String requestListStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/count", requestMap);
+        return JSON.parseObject(requestListStr, new TypeReference<Result<List<LinkCountRespDto>>>() {
         });
     }
 }
