@@ -19,6 +19,7 @@ public class LinkTableShardingTest {
             "\t`valid_date_type` tinyint(1) DEFAULT NULL COMMENT '有效期类型 0：永久有效 1：用户自定义',\n" +
             "\t`valid_date` datetime DEFAULT NULL COMMENT '有效期',\n" +
             "\t`describe` varchar(1024) DEFAULT NULL COMMENT '描述',\n" +
+            "  `favicon` varchar(1024) DEFAULT NULL COMMENT '图片url',\n" +
             "  `create_time` datetime DEFAULT NULL COMMENT '创建时间',\n" +
             "  `update_time` datetime DEFAULT NULL COMMENT '修改时间',\n" +
             "  `del_flag` tinyint(1) DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',\n" +

@@ -23,8 +23,7 @@ public class LinkController {
     private final LinkService linkService;
     @PostMapping("/create")
     public Result<LinkCreateRespDto> createShortLink(@RequestBody LinkCreateReqDto linkCreateReqDto){
-        linkService.createShortLink(linkCreateReqDto);
-        return Results.success(null);
+        return Results.success(linkService.createShortLink(linkCreateReqDto));
 
     }
     @GetMapping("/page")

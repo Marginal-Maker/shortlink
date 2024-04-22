@@ -21,4 +21,6 @@ public class LinkCreateRespDto {
     private String originUrl; // 原始链接
 
     private String gid; // 分组标识
+
+    private String favicon;
 }

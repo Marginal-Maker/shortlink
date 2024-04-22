@@ -27,4 +27,6 @@ public class LinkCreateReqDto {
 
     // @Column(length = 1024) 指定了字段的长度
     private String describe; // 描述
+
+    private String favicon;
 }

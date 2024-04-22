@@ -51,4 +51,6 @@ public class LinkDO extends BaseDO {
     // @Column(length = 1024) 指定了字段的长度
     @TableField("`describe`")
     private String describe; // 描述
+
+    private String favicon;
 }
