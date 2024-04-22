@@ -21,6 +21,7 @@ public interface GroupService extends IService<GroupDO> {
      * @created at 2024/4/15 16:04
     */
     void save(String groupName);
+    void save(String username, String groupName);
     /**
      * 查询短连接分组
      * @param

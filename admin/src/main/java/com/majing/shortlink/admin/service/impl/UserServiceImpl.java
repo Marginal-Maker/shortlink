@@ -14,6 +14,7 @@ import com.majing.shortlink.admin.dto.req.UserRegisterReqDto;
 import com.majing.shortlink.admin.dto.req.UserUpdateReqDto;
 import com.majing.shortlink.admin.dto.resp.UserLoginRespDto;
 import com.majing.shortlink.admin.dto.resp.UserRespDto;
+import com.majing.shortlink.admin.service.GroupService;
 import com.majing.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
     private final RedissonClient redissonClient;
     private final StringRedisTemplate stringRedisTemplate;
+    private final GroupService groupService;
     @Override
     public UserRespDto getUserByUsername(String username) {
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
@@ -71,6 +73,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                         throw new ClientException(USER_SAVE_ERROR);
                     }
                     userRegisterCachePenetrationBloomFilter.add(userRegisterReqDto.getUsername());
+                    groupService.save(userRegisterReqDto.getUsername(), "默认分组");
                     return;
                 }catch (DuplicateKeyException exception){
                     throw new ClientException(USER_EXIST.message(), exception, USER_EXIST);
