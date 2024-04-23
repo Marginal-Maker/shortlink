@@ -2,8 +2,10 @@ package com.majing.shortlink.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.majing.shortlink.admin.common.convention.result.Result;
+import com.majing.shortlink.admin.common.convention.result.Results;
 import com.majing.shortlink.admin.remote.dto.LinkRemoteService;
 import com.majing.shortlink.admin.remote.dto.req.LinkCreateReqDto;
+import com.majing.shortlink.admin.remote.dto.req.LinkUpdateReqDto;
 import com.majing.shortlink.admin.remote.dto.req.LinkedPageReqDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkedPageRespDto;
@@ -26,6 +28,10 @@ public class LinkController {
     @PostMapping("/create")
     public Result<LinkCreateRespDto> createShortLink(@RequestBody LinkCreateReqDto linkCreateReqDto){
         return linkRemoteService.createShortLink(linkCreateReqDto);
-
+    }
+    @PostMapping ("/update")
+    public Result<Void> updateLink(@RequestBody LinkUpdateReqDto linkUpdateReqDto){
+        linkRemoteService.updateLink(linkUpdateReqDto);
+        return Results.success();
     }
 }

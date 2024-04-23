@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.majing.shortlink.project.dao.entity.LinkDO;
 import com.majing.shortlink.project.dto.req.LinkCreateReqDto;
+import com.majing.shortlink.project.dto.req.LinkUpdateReqDto;
 import com.majing.shortlink.project.dto.req.LinkedPageReqDto;
 import com.majing.shortlink.project.dto.resp.LinkCountRespDto;
 import com.majing.shortlink.project.dto.resp.LinkCreateRespDto;
@@ -39,4 +40,12 @@ public interface LinkService extends IService<LinkDO> {
      * @created at 2024/4/22 16:36
     */
     List<LinkCountRespDto> listGroupLinkCount(List<String> gidList);
+    /**
+     * 更新短链接
+     * @param linkUpdateReqDto
+     * @return void
+     * @created at 2024/4/23 15:26
+    */
+
+    void updateLink(LinkUpdateReqDto linkUpdateReqDto);
 }

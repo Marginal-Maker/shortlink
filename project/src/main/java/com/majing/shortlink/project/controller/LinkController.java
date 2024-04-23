@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.majing.shortlink.project.commom.convention.result.Result;
 import com.majing.shortlink.project.commom.convention.result.Results;
 import com.majing.shortlink.project.dto.req.LinkCreateReqDto;
+import com.majing.shortlink.project.dto.req.LinkUpdateReqDto;
 import com.majing.shortlink.project.dto.req.LinkedPageReqDto;
 import com.majing.shortlink.project.dto.resp.LinkCountRespDto;
 import com.majing.shortlink.project.dto.resp.LinkCreateRespDto;
@@ -37,5 +38,11 @@ public class LinkController {
     public Result<List<LinkCountRespDto>> listGroupLinkCount(@RequestParam("gidList") List<String> gidList){
         return Results.success(linkService.listGroupLinkCount(gidList));
     }
+    @PostMapping ("/update")
+    public Result<Void> updateLink(@RequestBody LinkUpdateReqDto linkUpdateReqDto){
+        linkService.updateLink(linkUpdateReqDto);
+        return Results.success();
+    }
+
 
 }
