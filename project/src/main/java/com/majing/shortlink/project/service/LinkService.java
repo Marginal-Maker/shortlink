@@ -9,6 +9,8 @@ import com.majing.shortlink.project.dto.req.LinkedPageReqDto;
 import com.majing.shortlink.project.dto.resp.LinkCountRespDto;
 import com.majing.shortlink.project.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.project.dto.resp.LinkedPageRespDto;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 import java.util.List;
 
@@ -46,6 +48,14 @@ public interface LinkService extends IService<LinkDO> {
      * @return void
      * @created at 2024/4/23 15:26
     */
-
     void updateLink(LinkUpdateReqDto linkUpdateReqDto);
+    /**
+     * 短链接跳转长连接
+     * @param shortUrl
+     * @param request
+     * @param response
+     * @return void
+     * @created at 2024/4/24 14:39
+    */
+    void restoreUrl(String shortUrl, ServletRequest request, ServletResponse response);
 }

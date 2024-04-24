@@ -43,6 +43,4 @@ public class LinkController {
         linkService.updateLink(linkUpdateReqDto);
         return Results.success();
     }
-
-
 }

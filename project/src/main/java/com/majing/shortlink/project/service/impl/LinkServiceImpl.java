@@ -13,6 +13,8 @@ import com.majing.shortlink.project.commom.convention.exception.ClientException;
 import com.majing.shortlink.project.commom.convention.exception.ServiceException;
 import com.majing.shortlink.project.commom.enums.validDateTypeEnum;
 import com.majing.shortlink.project.dao.entity.LinkDO;
+import com.majing.shortlink.project.dao.entity.LinkGotoDo;
+import com.majing.shortlink.project.dao.mapper.LinkGotoMapper;
 import com.majing.shortlink.project.dao.mapper.LinkMapper;
 import com.majing.shortlink.project.dto.req.LinkCreateReqDto;
 import com.majing.shortlink.project.dto.req.LinkUpdateReqDto;
@@ -22,6 +24,9 @@ import com.majing.shortlink.project.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.project.dto.resp.LinkedPageRespDto;
 import com.majing.shortlink.project.service.LinkService;
 import com.majing.shortlink.project.util.HashUtil;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
@@ -29,6 +34,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,6 +49,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements LinkService {
     private final RBloomFilter<String> shortUriCreateCachePenetrationBloomFilter;
+    private final LinkGotoMapper linkGotoMapper;
+    @Transactional(rollbackFor = Exception.class)
     public LinkCreateRespDto createShortLink(LinkCreateReqDto linkCreateReqDto) {
         String shortLinkSuffix = generateShortLink(linkCreateReqDto);
         String fullShortLink = StrBuilder.create(linkCreateReqDto.getDomain())
@@ -61,8 +69,12 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
                 .enableStatus(1)
                 .fullShortUrl(fullShortLink)
                 .build();
+        LinkGotoDo linkGotoDo = LinkGotoDo.builder()
+                .gid(linkCreateReqDto.getGid())
+                .fullShortUrl(fullShortLink).build();
         try{
             baseMapper.insert(linkDO);
+            linkGotoMapper.insert(linkGotoDo);
         }catch (DuplicateKeyException ex){
             log.warn("短连接：{}重复入库", fullShortLink);
             throw  new ServiceException("短链接生成重复。");
@@ -141,6 +153,33 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
             baseMapper.delete(queryWrapperUpdate);
             baseMapper.insert(newLink);
         }
+    }
+
+    @Override
+    public void restoreUrl(String shortUrl, ServletRequest request, ServletResponse response) {
+        String serverName = request.getServerName();
+        String fullShortUrl = serverName + "/" + shortUrl;
+        LambdaQueryWrapper<LinkGotoDo> linkGotoDoLambdaQueryWrapper = Wrappers.lambdaQuery(LinkGotoDo.class)
+                .eq(LinkGotoDo::getFullShortUrl, fullShortUrl);
+        LinkGotoDo linkGotoDo = linkGotoMapper.selectOne(linkGotoDoLambdaQueryWrapper);
+        if(linkGotoDo==null){
+            //严格来说要做风控
+            return;
+        }
+        LambdaQueryWrapper<LinkDO> linkDOLambdaQueryWrapper = Wrappers.lambdaQuery(LinkDO.class)
+                .eq(LinkDO::getGid, linkGotoDo.getGid())
+                .eq(LinkDO::getFullShortUrl, fullShortUrl)
+                .eq(LinkDO::getEnableStatus,1)
+                .eq(LinkDO::getDelFlag,0);
+        LinkDO linkDO = baseMapper.selectOne(linkDOLambdaQueryWrapper);
+        if(linkDO!=null){
+            try {
+                ((HttpServletResponse) response).sendRedirect(linkDO.getOriginUrl());
+            } catch (IOException e) {
+                throw new ClientException("跳转失败");
+            }
+        }
+
     }
 
     private String generateShortLink(LinkCreateReqDto linkCreateReqDto){
