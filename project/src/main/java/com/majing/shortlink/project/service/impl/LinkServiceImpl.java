@@ -39,12 +39,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.majing.shortlink.project.commom.constant.RedisKeyConstant.*;
+import static com.majing.shortlink.project.util.LinkUtil.getLinkCacheValidDate;
 
 /**
  * @author majing
@@ -88,6 +90,7 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
             log.warn("短连接：{}重复入库", fullShortLink);
             throw  new ServiceException("短链接生成重复。");
         }
+        stringRedisTemplate.opsForValue().set(String.format(LINK_GOTO_KEY, fullShortLink), linkDO.getOriginUrl(), getLinkCacheValidDate(linkDO.getValidDate()));
         shortUriCreateCachePenetrationBloomFilter.add(fullShortLink);
         return LinkCreateRespDto.builder()
                 .gid(linkCreateReqDto.getGid())
@@ -198,9 +201,9 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
                                     .eq(LinkDO::getEnableStatus,1)
                                     .eq(LinkDO::getDelFlag,0);
                             LinkDO linkDO = baseMapper.selectOne(linkDOLambdaQueryWrapper);
-                            if(linkDO!=null){
+                            if(linkDO!=null && linkDO.getValidDate()!=null && linkDO.getValidDate().after(new Date())){
                                 //第一次从数据库获取之后，将数据存入缓存
-                                stringRedisTemplate.opsForValue().set(String.format(LINK_GOTO_KEY, fullShortUrl), linkDO.getOriginUrl());
+                                stringRedisTemplate.opsForValue().set(String.format(LINK_GOTO_KEY, fullShortUrl), linkDO.getOriginUrl(), getLinkCacheValidDate(linkDO.getValidDate()));
                                 originalUrl = linkDO.getOriginUrl();
                             }else{
                                 //数据库没有则存入空值
