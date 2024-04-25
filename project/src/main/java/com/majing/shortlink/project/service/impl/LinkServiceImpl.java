@@ -42,9 +42,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
-import static com.majing.shortlink.project.commom.constant.RedisKeyConstant.LINK_GOTO_KEY;
-import static com.majing.shortlink.project.commom.constant.RedisKeyConstant.LINK_LOCK_KEY;
+import static com.majing.shortlink.project.commom.constant.RedisKeyConstant.*;
 
 /**
  * @author majing
@@ -168,41 +168,59 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
     public void restoreUrl(String shortUrl, ServletRequest request, ServletResponse response) {
         String serverName = request.getServerName();
         String fullShortUrl = "http://" + serverName + "/" + shortUrl;
+        //第一步：查询缓存中是否存在对应的原始链接，如果存在直接跳转，如果不存在执行第二步
         String originalUrl = stringRedisTemplate.opsForValue().get(String.format(LINK_GOTO_KEY, fullShortUrl));
         if(StrUtil.isBlank(originalUrl)){
-            RLock lock = redissonClient.getLock(String.format(LINK_LOCK_KEY, fullShortUrl));
-            lock.lock();
-            try {
-                originalUrl = stringRedisTemplate.opsForValue().get(String.format(LINK_GOTO_KEY, fullShortUrl));
-                if(StrUtil.isBlank(originalUrl)){
-                    LambdaQueryWrapper<LinkGotoDo> linkGotoDoLambdaQueryWrapper = Wrappers.lambdaQuery(LinkGotoDo.class)
-                            .eq(LinkGotoDo::getFullShortUrl, fullShortUrl);
-                    LinkGotoDo linkGotoDo = linkGotoMapper.selectOne(linkGotoDoLambdaQueryWrapper);
-                    if(linkGotoDo==null){
-                        //严格来说要做风控
-                        return;
-                    }
-                    LambdaQueryWrapper<LinkDO> linkDOLambdaQueryWrapper = Wrappers.lambdaQuery(LinkDO.class)
-                            .eq(LinkDO::getGid, linkGotoDo.getGid())
-                            .eq(LinkDO::getFullShortUrl, fullShortUrl)
-                            .eq(LinkDO::getEnableStatus,1)
-                            .eq(LinkDO::getDelFlag,0);
-                    LinkDO linkDO = baseMapper.selectOne(linkDOLambdaQueryWrapper);
-                    if(linkDO!=null){
-                        stringRedisTemplate.opsForValue().set(String.format(LINK_GOTO_KEY, fullShortUrl), linkDO.getOriginUrl());
-                        originalUrl = linkDO.getOriginUrl();
+            //第二步：对于缓存中不存在的原始链接可能失效或者数据库里不存在，通过布隆过滤器可以过滤掉数据库中不存在的情况
+            boolean contains = shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl);
+            if(contains){
+                //第三步：如果布隆过滤器中存在，则会有误判的情况，由于后续对于数据库中不存在的情况会在缓存中存储空值，因此需要判断
+                //缓存中是否存在空值，如果不存在需要继续判断，过滤掉第一次查询，尚未在缓存中存储空值的情况
+                String gotoIsNullLink = stringRedisTemplate.opsForValue().get(String.format(Link_ISNULL_KEY,fullShortUrl));
+                if(StrUtil.isBlank(gotoIsNullLink)){
+                    //对同一个短链跳长链的请求加锁
+                    RLock lock = redissonClient.getLock(String.format(LINK_LOCK_KEY, fullShortUrl));
+                    lock.lock();
+                    try {
+                        //双重校验，用来应对上一个锁执行过程中已经将数据库的值存入缓存的情况
+                        originalUrl = stringRedisTemplate.opsForValue().get(String.format(LINK_GOTO_KEY, fullShortUrl));
+                        if(StrUtil.isBlank(originalUrl)){
+                            LambdaQueryWrapper<LinkGotoDo> linkGotoDoLambdaQueryWrapper = Wrappers.lambdaQuery(LinkGotoDo.class)
+                                    .eq(LinkGotoDo::getFullShortUrl, fullShortUrl);
+                            LinkGotoDo linkGotoDo = linkGotoMapper.selectOne(linkGotoDoLambdaQueryWrapper);
+                            if(linkGotoDo==null){
+                                //严格来说要做风控
+                                return;
+                            }
+                            LambdaQueryWrapper<LinkDO> linkDOLambdaQueryWrapper = Wrappers.lambdaQuery(LinkDO.class)
+                                    .eq(LinkDO::getGid, linkGotoDo.getGid())
+                                    .eq(LinkDO::getFullShortUrl, fullShortUrl)
+                                    .eq(LinkDO::getEnableStatus,1)
+                                    .eq(LinkDO::getDelFlag,0);
+                            LinkDO linkDO = baseMapper.selectOne(linkDOLambdaQueryWrapper);
+                            if(linkDO!=null){
+                                //第一次从数据库获取之后，将数据存入缓存
+                                stringRedisTemplate.opsForValue().set(String.format(LINK_GOTO_KEY, fullShortUrl), linkDO.getOriginUrl());
+                                originalUrl = linkDO.getOriginUrl();
+                            }else{
+                                //数据库没有则存入空值
+                                stringRedisTemplate.opsForValue().set(String.format(Link_ISNULL_KEY,fullShortUrl), "-",30, TimeUnit.MINUTES);
+                            }
+                        }
+                    }finally {
+                        lock.unlock();
                     }
                 }
-            }finally {
-                lock.unlock();
             }
         }
         if(originalUrl!=null){
             try {
                 ((HttpServletResponse) response).sendRedirect(originalUrl);
             } catch (IOException e) {
-                throw new ClientException("跳转失败");
+                throw new ClientException("短链接重定向失败");
             }
+        }else{
+            throw new ClientException("短链接不存在");
         }
     }
 
