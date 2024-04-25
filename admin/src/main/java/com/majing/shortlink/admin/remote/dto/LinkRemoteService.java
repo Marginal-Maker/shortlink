@@ -47,4 +47,12 @@ public interface LinkRemoteService {
     default void updateLink(LinkUpdateReqDto linkUpdateReqDto) {
         HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/update", JSON.toJSONString(linkUpdateReqDto));
     }
+
+    default Result<String> getUrlTitle(String url){
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("url", url);
+        String requestListStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/title", requestMap);
+        return JSON.parseObject(requestListStr, new TypeReference<Result<String>>() {
+        });
+    }
 }

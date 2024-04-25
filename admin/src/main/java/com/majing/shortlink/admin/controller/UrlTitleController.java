@@ -1,8 +1,7 @@
-package com.majing.shortlink.project.controller;
+package com.majing.shortlink.admin.controller;
 
-import com.majing.shortlink.project.commom.convention.result.Result;
-import com.majing.shortlink.project.commom.convention.result.Results;
-import com.majing.shortlink.project.service.UrlTitleService;
+import com.majing.shortlink.admin.common.convention.result.Result;
+import com.majing.shortlink.admin.remote.dto.LinkRemoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,9 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class UrlTitleController {
-    private final UrlTitleService urlTitleService;
-    @GetMapping("/api/short-link/v1/title")
+    LinkRemoteService linkRemoteService = new LinkRemoteService() {
+    };
+    @GetMapping("/api/short-link/admin/v1/title")
     public Result<String> getUrlTitle(@RequestParam("url") String url){
-        return Results.success(urlTitleService.getUrlTitle(url));
+        return linkRemoteService.getUrlTitle(url);
     }
 }
