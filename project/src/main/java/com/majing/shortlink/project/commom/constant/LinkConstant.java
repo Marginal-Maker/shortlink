@@ -6,5 +6,5 @@ package com.majing.shortlink.project.commom.constant;
  * @Description
  */
 public class LinkConstant {
-    public static final long DEFAULT_CACHE_VALID_TIME = 2626560000L;
+    public static final long DEFAULT_CACHE_VALID_TIME = 262656L;
 }

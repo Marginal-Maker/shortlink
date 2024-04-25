@@ -29,7 +29,11 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -39,6 +43,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +85,7 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
                 .shortUri(shortLinkSuffix)
                 .enableStatus(1)
                 .fullShortUrl(fullShortLink)
+                .favicon(getFavicon(linkCreateReqDto.getOriginUrl()))
                 .build();
         LinkGotoDo linkGotoDo = LinkGotoDo.builder()
                 .gid(linkCreateReqDto.getGid())
@@ -90,7 +97,7 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
             log.warn("短连接：{}重复入库", fullShortLink);
             throw  new ServiceException("短链接生成重复。");
         }
-        stringRedisTemplate.opsForValue().set(String.format(LINK_GOTO_KEY, fullShortLink), linkDO.getOriginUrl(), getLinkCacheValidDate(linkDO.getValidDate()));
+        stringRedisTemplate.opsForValue().set(String.format(LINK_GOTO_KEY, fullShortLink), linkDO.getOriginUrl(), getLinkCacheValidDate(linkDO.getValidDate()), TimeUnit.SECONDS);
         shortUriCreateCachePenetrationBloomFilter.add(fullShortLink);
         return LinkCreateRespDto.builder()
                 .gid(linkCreateReqDto.getGid())
@@ -174,7 +181,7 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
         //第一步：查询缓存中是否存在对应的原始链接，如果存在直接跳转，如果不存在执行第二步
         String originalUrl = stringRedisTemplate.opsForValue().get(String.format(LINK_GOTO_KEY, fullShortUrl));
         if(StrUtil.isBlank(originalUrl)){
-            //第二步：对于缓存中不存在的原始链接可能失效或者数据库里不存在，通过布隆过滤器可以过滤掉数据库中不存在的情况
+            //第二步：对于缓存中不存在的原始链接可能失效或者数据库里不存在，通过布隆过滤器可以过滤掉大部分数据库中不存在的情况
             boolean contains = shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl);
             if(contains){
                 //第三步：如果布隆过滤器中存在，则会有误判的情况，由于后续对于数据库中不存在的情况会在缓存中存储空值，因此需要判断
@@ -201,9 +208,9 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
                                     .eq(LinkDO::getEnableStatus,1)
                                     .eq(LinkDO::getDelFlag,0);
                             LinkDO linkDO = baseMapper.selectOne(linkDOLambdaQueryWrapper);
-                            if(linkDO!=null && linkDO.getValidDate()!=null && linkDO.getValidDate().after(new Date())){
+                            if(linkDO!=null && (linkDO.getValidDate()==null ||(linkDO.getValidDate().after(new Date())))){
                                 //第一次从数据库获取之后，将数据存入缓存
-                                stringRedisTemplate.opsForValue().set(String.format(LINK_GOTO_KEY, fullShortUrl), linkDO.getOriginUrl(), getLinkCacheValidDate(linkDO.getValidDate()));
+                                stringRedisTemplate.opsForValue().set(String.format(LINK_GOTO_KEY, fullShortUrl), linkDO.getOriginUrl(), getLinkCacheValidDate(linkDO.getValidDate()), TimeUnit.SECONDS);
                                 originalUrl = linkDO.getOriginUrl();
                             }else{
                                 //数据库没有则存入空值
@@ -244,5 +251,20 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, LinkDO> implements 
             max++;
         }
         return shortUri;
+    }
+
+    @SneakyThrows
+    private String getFavicon(String url){
+        URL targetUrl = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) targetUrl.openConnection();
+        connection.setRequestMethod("GET");
+        connection.connect();
+        int responseCode = connection.getResponseCode();
+        if(responseCode == HttpURLConnection.HTTP_OK){
+            Document document = Jsoup.connect(url).get();
+            Element faviconLink = document.select("link[rel~=(?i)^(shortcut )?icon]").first();
+            return faviconLink !=null?faviconLink.attr("abs:href") : null;
+        }
+        return null;
     }
 }
