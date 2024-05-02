@@ -8,6 +8,7 @@ import com.majing.shortlink.admin.common.convention.result.Result;
 import com.majing.shortlink.admin.remote.dto.req.LinkCreateReqDto;
 import com.majing.shortlink.admin.remote.dto.req.LinkUpdateReqDto;
 import com.majing.shortlink.admin.remote.dto.req.LinkedPageReqDto;
+import com.majing.shortlink.admin.remote.dto.req.SaveRecycleBinReqDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkCountRespDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkedPageRespDto;
@@ -54,5 +55,8 @@ public interface LinkRemoteService {
         String requestListStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/title", requestMap);
         return JSON.parseObject(requestListStr, new TypeReference<Result<String>>() {
         });
+    }
+    default void saveRecycleBin(SaveRecycleBinReqDto saveRecycleBinReqDto){
+        HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/recycle-bin/save", JSON.toJSONString(saveRecycleBinReqDto));
     }
 }

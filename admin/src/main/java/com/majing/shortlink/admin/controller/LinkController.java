@@ -7,6 +7,7 @@ import com.majing.shortlink.admin.remote.dto.LinkRemoteService;
 import com.majing.shortlink.admin.remote.dto.req.LinkCreateReqDto;
 import com.majing.shortlink.admin.remote.dto.req.LinkUpdateReqDto;
 import com.majing.shortlink.admin.remote.dto.req.LinkedPageReqDto;
+import com.majing.shortlink.admin.remote.dto.req.SaveRecycleBinReqDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkedPageRespDto;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,11 @@ public class LinkController {
     @PostMapping ("/update")
     public Result<Void> updateLink(@RequestBody LinkUpdateReqDto linkUpdateReqDto){
         linkRemoteService.updateLink(linkUpdateReqDto);
+        return Results.success();
+    }
+    @PostMapping("/recycle-bin/save")
+    public Result<Void> saveRecycleBin(@RequestBody SaveRecycleBinReqDto saveRecycleBinReqDto){
+        linkRemoteService.saveRecycleBin(saveRecycleBinReqDto);
         return Results.success();
     }
 }
