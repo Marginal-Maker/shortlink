@@ -1,14 +1,14 @@
 package com.majing.shortlink.project.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.majing.shortlink.project.commom.convention.result.Result;
 import com.majing.shortlink.project.commom.convention.result.Results;
+import com.majing.shortlink.project.dto.req.RecycleBinLinkPageReqDto;
 import com.majing.shortlink.project.dto.req.SaveRecycleBinReqDto;
+import com.majing.shortlink.project.dto.resp.LinkedPageRespDto;
 import com.majing.shortlink.project.service.RecycleBinService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author majing
@@ -25,5 +25,10 @@ public class RecycleBinController {
     public Result<Void> saveRecycleBin(@RequestBody SaveRecycleBinReqDto saveRecycleBinReqDto){
         recycleBinService.save(saveRecycleBinReqDto);
         return Results.success();
+    }
+
+    @GetMapping("/recycle-bin/page")
+    public Result<IPage<LinkedPageRespDto>> pageLink(RecycleBinLinkPageReqDto recycleBinLinkPageReqDto){
+        return Results.success(recycleBinService.pageLink(recycleBinLinkPageReqDto));
     }
 }

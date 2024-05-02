@@ -5,10 +5,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.majing.shortlink.admin.common.convention.result.Result;
-import com.majing.shortlink.admin.remote.dto.req.LinkCreateReqDto;
-import com.majing.shortlink.admin.remote.dto.req.LinkUpdateReqDto;
-import com.majing.shortlink.admin.remote.dto.req.LinkedPageReqDto;
-import com.majing.shortlink.admin.remote.dto.req.SaveRecycleBinReqDto;
+import com.majing.shortlink.admin.remote.dto.req.*;
 import com.majing.shortlink.admin.remote.dto.resp.LinkCountRespDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkedPageRespDto;
@@ -58,5 +55,15 @@ public interface LinkRemoteService {
     }
     default void saveRecycleBin(SaveRecycleBinReqDto saveRecycleBinReqDto){
         HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/recycle-bin/save", JSON.toJSONString(saveRecycleBinReqDto));
+    }
+
+    default Result<IPage<LinkedPageRespDto>> RecycleBinPageLink(RecycleBinLinkPageReqDto recycleBinLinkPageReqDto){
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("gidList", recycleBinLinkPageReqDto.getGidList());
+        requestMap.put("current", recycleBinLinkPageReqDto.getCurrent());
+        requestMap.put("size", recycleBinLinkPageReqDto.getSize());
+        String resultPageStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/recycle-bin/page", requestMap);
+        return JSON.parseObject(resultPageStr, new TypeReference<Result<IPage<LinkedPageRespDto>>>() {
+        });
     }
 }

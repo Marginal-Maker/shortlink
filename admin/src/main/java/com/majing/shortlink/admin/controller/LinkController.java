@@ -3,13 +3,13 @@ package com.majing.shortlink.admin.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.majing.shortlink.admin.common.convention.result.Result;
 import com.majing.shortlink.admin.common.convention.result.Results;
+import com.majing.shortlink.admin.dao.entity.GroupDO;
 import com.majing.shortlink.admin.remote.dto.LinkRemoteService;
-import com.majing.shortlink.admin.remote.dto.req.LinkCreateReqDto;
-import com.majing.shortlink.admin.remote.dto.req.LinkUpdateReqDto;
-import com.majing.shortlink.admin.remote.dto.req.LinkedPageReqDto;
-import com.majing.shortlink.admin.remote.dto.req.SaveRecycleBinReqDto;
+import com.majing.shortlink.admin.remote.dto.req.*;
 import com.majing.shortlink.admin.remote.dto.resp.LinkCreateRespDto;
 import com.majing.shortlink.admin.remote.dto.resp.LinkedPageRespDto;
+import com.majing.shortlink.admin.service.RecycleBinService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("api/short-link/admin/v1")
+@RequiredArgsConstructor
 public class LinkController {
+    private final RecycleBinService recycleBinService;
     LinkRemoteService linkRemoteService = new LinkRemoteService() {
     };
     @GetMapping("/page")
@@ -39,5 +41,10 @@ public class LinkController {
     public Result<Void> saveRecycleBin(@RequestBody SaveRecycleBinReqDto saveRecycleBinReqDto){
         linkRemoteService.saveRecycleBin(saveRecycleBinReqDto);
         return Results.success();
+    }
+    @GetMapping("/recycle-bin/page")
+    public Result<IPage<LinkedPageRespDto>> pageLink(RecycleBinLinkPageReqDto recycleBinLinkPageReqDto){
+                recycleBinLinkPageReqDto.setGidList(recycleBinService.getGidList().stream().map(GroupDO::getGid).toList());
+        return linkRemoteService.RecycleBinPageLink(recycleBinLinkPageReqDto);
     }
 }
