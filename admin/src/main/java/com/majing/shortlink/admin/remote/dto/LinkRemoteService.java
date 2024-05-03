@@ -66,4 +66,7 @@ public interface LinkRemoteService {
         return JSON.parseObject(resultPageStr, new TypeReference<Result<IPage<LinkedPageRespDto>>>() {
         });
     }
+    default void recoverRecycleBin(RecoverRecycleBinReqDto recoverRecycleBinReqDto){
+        HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/recycle-bin/recover", JSON.toJSONString(recoverRecycleBinReqDto));
+    }
 }

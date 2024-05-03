@@ -3,6 +3,7 @@ package com.majing.shortlink.project.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.majing.shortlink.project.dao.entity.LinkDO;
+import com.majing.shortlink.project.dto.req.RecoverRecycleBinReqDto;
 import com.majing.shortlink.project.dto.req.RecycleBinLinkPageReqDto;
 import com.majing.shortlink.project.dto.req.SaveRecycleBinReqDto;
 import com.majing.shortlink.project.dto.resp.LinkedPageRespDto;
@@ -27,4 +28,11 @@ public interface RecycleBinService extends IService<LinkDO> {
      * @created at 2024/5/2 21:27
     */
     IPage<LinkedPageRespDto> pageLink(RecycleBinLinkPageReqDto recycleBinLinkPageReqDto);
+    /**
+     * 移除回收站
+     * @param recoverRecycleBinReqDto
+     * @return void
+     * @created at 2024/5/3 10:50
+    */
+    void recover(RecoverRecycleBinReqDto recoverRecycleBinReqDto);
 }

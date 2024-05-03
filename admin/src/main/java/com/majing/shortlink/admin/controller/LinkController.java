@@ -47,4 +47,9 @@ public class LinkController {
                 recycleBinLinkPageReqDto.setGidList(recycleBinService.getGidList().stream().map(GroupDO::getGid).toList());
         return linkRemoteService.RecycleBinPageLink(recycleBinLinkPageReqDto);
     }
+    @PostMapping("/recycle-bin/recover")
+    public Result<Void> recoverRecycleBin(@RequestBody RecoverRecycleBinReqDto recoverRecycleBinReqDto){
+        linkRemoteService.recoverRecycleBin(recoverRecycleBinReqDto);
+        return Results.success();
+    }
 }
